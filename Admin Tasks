@@ -9,20 +9,20 @@ hdfs dfsadmin -safemode get
 
 
 -----**** Creating a data pipeline from s3 to hdfs and vice versa ****-----
-
+cd /usr/local/hadoop/etc/hadoop/
 nano core-site.xml
 
 
 <property>
   <name>fs.s3a.access.key</name>
   <description>AWS access key ID used by S3A file system.</description>
-  <value>AKIAITOWDHNFWV7HJCHA</value> 
+  <value>AKIAT4QKTFKC5PDGIGU6</value> 
 </property>
 
 <property>
   <name>fs.s3a.secret.key</name>
   <description>AWS secret key used by S3A file system.</description>
-  <value>ODjRZ3COCnvyiA7vTPqIQeL4ISv/MmJbPjyjEqw9</value>
+  <value>16zCf95yPX5qKVhzYLbm21iyt0gdsatrjylRIdPm</value>
 </property>
 
 
@@ -31,25 +31,30 @@ nano hadoop-env.sh
 
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HADOOP_HOME/share/hadoop/tools/lib/*
 
-d
-hadoop fs -cp s3n://<bucket-name>/<file-name> hdfs:///user/hduser/
 
-hdfs dfs -cp s3n://<bucket-name>/<file-name> /user/hduser/
+hadoop fs -cp s3a://<bucket-name>/<file-name> hdfs:///user/hduser/
 
+OR 
 
------*** Distributed copy ***-----
+hdfs dfs -cp s3a://<bucket-name>/<file-name> /user/hduser/
 
-nano core-site.xml
+# distcp commaond using i map reduse job run in backgroud 
+#copy the data large data one cluster to another cluster using a block formate  and very fast
+#hadoop distcp hdfs://<nn1 private ip >:8020/foo/a \
+                    hdfs://<nn1 private ip>:8020/foo/b h
+               
+-----*** Distributed copy ***----
+cd /usr/local/hadoop/etc/hadoop/
+
+sudo nano core-site.xml
 
 <property>
-<name>fs.s3.impl</name>
+<name>fs.s3.impl</name> #
 <value>org.apache.hadoop.fs.s3.S3FileSystem</value>
 <description>The FileSystem for s3a: S3 uris.</description>
 </property>
 
-
-
-nano mapred-site.xml
+$ sudo nano mapred-site.xml
 
 <property>
   <!-- Add to the classpath used when running an M/R job -->
@@ -71,7 +76,7 @@ hdfs dfs -createSnapshot /user/hduser/ snapshot1
 
 hdfs lsSnapshottableDir
 
-hdfs dfs -ls /user/ubuntu/.snapshot
+hdfs dfs -ls /user/hduser/.snapshot
 
 hdfs dfs -deleteSnapshot /user/hduser/ snapshot1
 
